@@ -1,6 +1,6 @@
 {
 	"id": "nodebb-plugin-video-embed",
-	"url": "https://github.com/julianlam/nodebb-plugin-video-embed",
+	"url": "https://github.com/bil-ash/nodebb-plugin-video-embed",
 	"library": "./library.js",
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
