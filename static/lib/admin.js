@@ -1,18 +1,18 @@
 'use strict';
 /* globals $, app, socket, define */
 
-define('admin/plugins/audio-embed', ['settings', 'alerts'], function(Settings, alerts) {
+define('admin/plugins/video-embed', ['settings', 'alerts'], function(Settings, alerts) {
 
 	var ACP = {};
 
 	ACP.init = function() {
-		Settings.load('audio-embed', $('.audio-embed-settings'));
+		Settings.load('video-embed', $('.video-embed-settings'));
 
 		$('#save').on('click', function() {
-			Settings.save('audio-embed', $('.audio-embed-settings'), function() {
+			Settings.save('video-embed', $('.video-embed-settings'), function() {
 				alerts.alert({
 					type: 'success',
-					alert_id: 'audio-embed-saved',
+					alert_id: 'video-embed-saved',
 					title: 'Settings Saved',
 					message: 'Please reload your NodeBB to apply these settings',
 					clickfn: function() {

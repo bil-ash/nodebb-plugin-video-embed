@@ -1,6 +1,6 @@
 {
-	"id": "nodebb-plugin-audio-embed",
-	"url": "https://github.com/julianlam/nodebb-plugin-audio-embed",
+	"id": "nodebb-plugin-video-embed",
+	"url": "https://github.com/julianlam/nodebb-plugin-video-embed",
 	"library": "./library.js",
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init" },
@@ -13,7 +13,7 @@
 		"static/lib/main.js"
 	],
 	"modules": {
-		"../admin/plugins/audio-embed.js": "static/lib/admin.js"
+		"../admin/plugins/video-embed.js": "static/lib/admin.js"
 	},
 	"templates": "static/templates"
 }

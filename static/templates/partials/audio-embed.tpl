@@ -1,3 +1,4 @@
-<audio src="{path}" controls="controls" preload="none">
-	Your browser does not support the <code>audio</code> element.
-</audio>
+<video controls="controls" controlslist="nodownload" preload="metadata">
+	<source src="{path}" type="video/webm" />
+	Your browser does not support the <code>video</code> element.
+</video>

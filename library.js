@@ -6,14 +6,18 @@ var path = require('path'),
     mkdirp = require('mkdirp'),
     mv = require('mv'),
     async = require('async'),
-    nconf = require.main.require('nconf');
+    nconf = require.main.require('nconf'),
+    {resolve} = require('path'),
+    shell = require('any-shell-escape'),
+    {exec} = require('child_process'),
+    pathToFfmpeg = require('ffmpeg-static');
 
 var db = require.main.require('./src/database');
 
 var controllers = require('./lib/controllers');
 
 var plugin = {
-        embedRegex: /\[audio\/([\w\-_.]+)\]/g
+        embedRegex: /\[video\/([\w\-_.]+)\]/g
     },
     app;
 
@@ -24,40 +28,43 @@ plugin.init = function(params, callback) {
 
     app = params.app;
 
-    router.get('/admin/plugins/audio-embed', hostMiddleware.admin.buildHeader, controllers.renderAdminPage);
-    router.get('/api/admin/plugins/audio-embed', controllers.renderAdminPage);
-    router.post('/plugins/nodebb-plugin-audio-embed/upload', multiparty, hostMiddleware.validateFiles, hostMiddleware.applyCSRF, controllers.upload);
+    router.get('/admin/plugins/video-embed', hostMiddleware.admin.buildHeader, controllers.renderAdminPage);
+    router.get('/api/admin/plugins/video-embed', controllers.renderAdminPage);
+    router.post('/plugins/nodebb-plugin-video-embed/upload', multiparty, hostMiddleware.validateFiles, hostMiddleware.applyCSRF, controllers.upload);
 
-    mkdirp(path.join(nconf.get('upload_path'), 'audio-embed'), callback);
+    mkdirp(path.join(nconf.get('upload_path'), 'video-embed'), callback);
 };
 
 plugin.addAdminNavigation = function(header, callback) {
     header.plugins.push({
-        route: '/plugins/audio-embed',
-        icon: 'fa-volume-up',
-        name: 'Audio Embed'
+        route: '/plugins/video-embed',
+        icon: 'fa-play',
+        name: 'Video Embed'
     });
 
     callback(null, header);
 };
 
 plugin.registerFormatting = function(payload, callback) {
-    payload.options.push({ name: 'audio-embed', className: 'fa fa-file-audio-o' });
+    payload.options.push({ name: 'video-embed', className: 'fa fa-video' });
     callback(null, payload);
 };
-
+//todo check if classname needs to be changed
 plugin.processUpload = function(payload, callback) {
-    if (payload.type.startsWith('audio/')) {
+    if (payload.type.startsWith('video/')) {
         var id = path.basename(payload.path),
-            uploadPath = path.join(nconf.get('upload_path'), 'audio-embed', id);
+            uploadPath = path.join(nconf.get('upload_path'), 'video-embed', id);
 
         async.waterfall([
-            async.apply(mv, payload.path, uploadPath),
-            async.apply(db.setObject, 'audio-embed:id:' + id, {
-                name: payload.name,
-                size: payload.size
+            async.apply(shell,[pathToFfmpeg,'-i',payload.path,'-c:v','libvpx-vp9','-r','24','s','480x270','b:v','128k','-threads','2','-speed','1','tile-columns','6',
+                'frame-parallel','1','-auto-alt-ref','1','-lag-in-frames','12','-c:a','libopus','-b:a','12k','-f','webm',uploadPath.substr(0, uploadPath.lastIndexOf(".")) + ".webm"
+            ]),
+            //async.apply(mv, payload.path, uploadPath), delete of original
+            async.apply(db.setObject, 'video-embed:id:' + id, {
+                name: payload.name.substr(0, payload.name.lastIndexOf(".")) + ".webm",
+                size: /*payload.size*/fs.statSync(uploadPath.substr(0, uploadPath.lastIndexOf(".")) + ".webm").size
             }),
-            async.apply(db.sortedSetAdd, 'audio-embed:date', +new Date(), id)
+            async.apply(db.sortedSetAdd, 'video-embed:date', +new Date(), id)
         ], function(err) {
             if (err) {
                 return callback(err);
@@ -103,11 +110,11 @@ plugin.parseRaw = function(content, callback) {
 
     async.filter(matches, plugin.exists, function(err, ids) {
         async.reduce(ids, content, function(content, id, next) {
-            app.render('partials/audio-embed', {
+            app.render('partials/video-embed', {
                 id: id,
-                path: path.join(nconf.get('relative_path'), '/uploads/audio-embed', id)
+                path: path.join(nconf.get('relative_path'), '/uploads/video-embed', id)
             }, function(err, html) {
-                content = content.replace('[audio/' + id + ']', html);
+                content = content.replace('[video/' + id + ']', html);
                 next(err, content);
             });
         }, callback);
@@ -115,7 +122,7 @@ plugin.parseRaw = function(content, callback) {
 };
 
 plugin.exists = function(id, callback) {
-    db.isSortedSetMember('audio-embed:date', id, callback);
+    db.isSortedSetMember('video-embed:date', id, callback);
 };
 
 module.exports = plugin;

@@ -1,5 +1,5 @@
 {
-  "name": "nodebb-plugin-audio-embed",
+  "name": "nodebb-plugin-video-embed",
   "version": "2.0.1",
   "description": "",
   "main": "library.js",
@@ -12,8 +12,8 @@
     "plugin"
   ],
   "author": {
-    "name": "Julian Lam",
-    "email": "julian@nodebb.org"
+    "name": "bil-ash",
+    "email": "abc@example.com"
   },
   "license": "MIT",
   "bugs": {
@@ -26,6 +26,8 @@
   "dependencies": {
     "async": "^3.2.2",
     "mkdirp": "^0.5.1",
-    "mv": "^2.1.1"
+    "mv": "^2.1.1",
+    "ffmpeg-static":"^5.2.0",
+    "any-shell-escape":"^0.1.1"
   }
 }
