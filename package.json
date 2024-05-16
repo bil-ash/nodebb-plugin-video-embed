@@ -5,7 +5,7 @@
   "main": "library.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/julianlam/nodebb-plugin-audio-embed"
+    "url": "https://github.com/bil-ash/nodebb-plugin-video-embed"
   },
   "keywords": [
     "nodebb",
